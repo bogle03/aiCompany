@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #07090e;
+  --foreground: #e7e9ee;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", Inter, Arial, sans-serif;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.35);
+  color: white;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes unit-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.office-floor {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    radial-gradient(circle at 50% 48%, rgba(124, 58, 237, 0.06), transparent 40%);
+  background-size: 24px 24px, 24px 24px, 100% 100%;
+}
+
+.office-unit {
+  transition-property: left, top;
+  transition-duration: 1.15s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: left, top;
+}
+
+.unit-body {
+  animation: unit-bob 2.4s ease-in-out infinite;
+}
+
+.meeting-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.28) transparent;
+}
+
+.meeting-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.meeting-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.28);
+}
+
+.animate-rise {
+  animation: rise 0.45s ease-out both;
+}
+
+.loading-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  animation: shimmer 1.6s infinite;
+}
+
+.report-content {
+  color: #c5c9d3;
+  font-size: 0.925rem;
+  line-height: 1.8;
+}
+
+.report-content h2,
+.report-content h3,
+.report-content h4 {
+  color: white;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 1.4rem 0 0.55rem;
+}
+
+.report-content h2 { font-size: 1.25rem; }
+.report-content h3 { font-size: 1.08rem; color: #ddd6fe; }
+.report-content h4 { font-size: 0.98rem; }
+.report-content p { margin: 0.35rem 0; }
+
+.report-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin: 0.4rem 0;
+}
+
+.report-list-item > svg {
+  flex: none;
+  margin-top: 0.42rem;
+  color: #a78bfa;
+}
+
+.report-list-item .number {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.3rem;
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.16);
+  color: #c4b5fd;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
