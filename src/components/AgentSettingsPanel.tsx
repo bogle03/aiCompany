@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, Check, RotateCcw, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Bot, Check, RotateCcw, SlidersHorizontal, Sparkles, TriangleAlert } from "lucide-react";
 import {
   AGENTS,
   AGENT_NAMES,
@@ -12,6 +12,11 @@ import {
   type AgentResponseStyle,
   type AgentSettingsMap,
 } from "@/lib/agents";
+import {
+  MAX_PROVIDER_CALLS,
+  MAX_REPORT_OUTPUT_TOKENS,
+  MAX_SPEECH_OUTPUT_TOKENS,
+} from "@/lib/meeting-limits";
 
 interface AgentSettingsPanelProps {
   settings: AgentSettingsMap;
@@ -24,6 +29,9 @@ export default function AgentSettingsPanel({ settings, onChange }: AgentSettings
   const [selectedAgent, setSelectedAgent] = useState<AgentName>("PM AI");
   const selected = AGENTS[selectedAgent];
   const selectedSetting = settings[selectedAgent];
+  const selectedModel = PROVIDER_MODELS[selectedSetting.provider].find(
+    (model) => model.id === selectedSetting.model,
+  );
 
   function updateSelected(patch: Partial<(typeof settings)[AgentName]>) {
     onChange({
@@ -100,7 +108,7 @@ export default function AgentSettingsPanel({ settings, onChange }: AgentSettings
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-400">AI 제공자</span>
-                <span className="rounded-full border border-amber-400/15 bg-amber-400/[0.06] px-2 py-0.5 text-[9px] text-amber-300">API 연결 전</span>
+                <span className="rounded-full border border-emerald-400/15 bg-emerald-400/[0.06] px-2 py-0.5 text-[9px] text-emerald-300">실제 API 연동</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -138,9 +146,16 @@ export default function AgentSettingsPanel({ settings, onChange }: AgentSettings
                 className="block h-11 w-full rounded-xl border border-white/[0.08] bg-[#11151e] px-3 text-xs text-slate-200 outline-none transition focus:border-violet-400/35"
               >
                 {PROVIDER_MODELS[selectedSetting.provider].map((model) => (
-                  <option key={model.id} value={model.id}>{model.label} · {model.description}</option>
+                  <option key={model.id} value={model.id}>
+                    {model.costTier === "high" ? "[고비용] " : ""}{model.label} · {model.description}
+                  </option>
                 ))}
               </select>
+              {selectedModel?.costTier === "high" && (
+                <span className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-300">
+                  <TriangleAlert size={12} /> 회의 시작 전에 고비용 모델 사용 확인을 요청합니다.
+                </span>
+              )}
             </label>
 
             <label className="block">
@@ -175,7 +190,7 @@ export default function AgentSettingsPanel({ settings, onChange }: AgentSettings
             </div>
             <div className="mt-4 border-t border-white/[0.06] pt-4">
               <p className="text-[10px] leading-5 text-slate-600">
-                선택값은 이 브라우저의 로컬 상태에만 저장됩니다. 멀티 모델 API가 연결되면 직원별 요청 경로로 사용됩니다.
+                회의당 최대 {MAX_PROVIDER_CALLS}회 호출 · 발언당 최대 {MAX_SPEECH_OUTPUT_TOKENS.toLocaleString()} 토큰 · 최종 보고서 최대 {MAX_REPORT_OUTPUT_TOKENS.toLocaleString()} 토큰
               </p>
             </div>
           </fieldset>

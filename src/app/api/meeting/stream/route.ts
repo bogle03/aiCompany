@@ -7,7 +7,9 @@ import {
   type AgentResponseStyle,
   type AgentSettingsMap,
 } from "@/lib/agents";
-import { runMockMeeting } from "@/lib/orchestrator";
+import { MAX_AGENT_INSTRUCTION_CHARS, MAX_ORDER_CHARS } from "@/lib/meeting-limits";
+import { runMeeting } from "@/lib/orchestrator";
+import { AIProviderError } from "@/lib/providers/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,7 +31,7 @@ function normalizeSettings(value: unknown): AgentSettingsMap {
         {
           instruction:
             typeof candidate?.instruction === "string"
-              ? candidate.instruction.trim().slice(0, 500)
+              ? candidate.instruction.trim().slice(0, MAX_AGENT_INSTRUCTION_CHARS)
               : fallback.instruction,
           responseStyle: RESPONSE_STYLES.includes(candidate?.responseStyle as AgentResponseStyle)
             ? candidate?.responseStyle
@@ -56,8 +58,11 @@ export async function POST(request: Request) {
   if (!order) {
     return NextResponse.json({ error: "오더 내용을 입력해 주세요." }, { status: 400 });
   }
-  if (order.length > 4000) {
-    return NextResponse.json({ error: "오더는 4,000자 이내로 입력해 주세요." }, { status: 400 });
+  if (order.length > MAX_ORDER_CHARS) {
+    return NextResponse.json(
+      { error: `오더는 ${MAX_ORDER_CHARS.toLocaleString()}자 이내로 입력해 주세요.` },
+      { status: 400 },
+    );
   }
 
   const settings = normalizeSettings(body.agentSettings);
@@ -65,13 +70,17 @@ export async function POST(request: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        for await (const event of runMockMeeting(order, settings)) {
+        for await (const event of runMeeting(order, settings)) {
           controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
         }
       } catch (error) {
-        console.error("Mock meeting stream error:", error);
+        console.error("Meeting stream error:", error);
+        const message =
+          error instanceof AIProviderError
+            ? error.publicMessage
+            : "AI 회의 중 오류가 발생했습니다.";
         controller.enqueue(
-          encoder.encode(`${JSON.stringify({ type: "error", message: "Mock 회의 중 오류가 발생했습니다." })}\n`),
+          encoder.encode(`${JSON.stringify({ type: "error", message })}\n`),
         );
       } finally {
         controller.close();

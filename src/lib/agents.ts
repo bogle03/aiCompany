@@ -25,18 +25,24 @@ export type AgentProvider = "openai" | "gemini";
 
 export const PROVIDER_MODELS: Record<
   AgentProvider,
-  Array<{ id: string; label: string; description: string }>
+  Array<{ id: string; label: string; description: string; costTier: "standard" | "high" }>
 > = {
   openai: [
-    { id: "gpt-4.1-mini", label: "GPT-4.1 mini", description: "빠르고 경제적인 기본 모델" },
-    { id: "gpt-4.1", label: "GPT-4.1", description: "복잡한 기획과 코딩 작업" },
-    { id: "gpt-4o-mini", label: "GPT-4o mini", description: "가벼운 범용 작업" },
+    { id: "gpt-4.1-mini", label: "GPT-4.1 mini", description: "빠르고 경제적인 기본 모델", costTier: "standard" },
+    { id: "gpt-4.1", label: "GPT-4.1", description: "복잡한 기획과 코딩 작업", costTier: "high" },
+    { id: "gpt-4o-mini", label: "GPT-4o mini", description: "가벼운 범용 작업", costTier: "standard" },
   ],
   gemini: [
-    { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "빠른 분석과 대량 처리" },
-    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "깊이 있는 추론과 분석" },
+    { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "빠른 분석과 대량 처리", costTier: "standard" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "깊이 있는 추론과 분석", costTier: "high" },
   ],
 };
+
+export function isHighCostModel(provider: AgentProvider, modelId: string) {
+  return PROVIDER_MODELS[provider].some(
+    (model) => model.id === modelId && model.costTier === "high",
+  );
+}
 
 export interface AgentSetting {
   instruction: string;

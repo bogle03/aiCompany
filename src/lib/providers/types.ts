@@ -5,15 +5,25 @@ export interface AgentTask {
   order: string;
   setting: AgentSetting;
   transcript: MeetingLogItem[];
-  phase: "opening" | "discussion" | "closing";
+  phase: "opening" | "discussion" | "closing" | "report";
 }
 
 export interface AIProvider {
   generate(task: AgentTask): Promise<string>;
 }
 
+export class AIProviderError extends Error {
+  constructor(
+    public readonly publicMessage: string,
+    options?: ErrorOptions,
+  ) {
+    super(publicMessage, options);
+    this.name = "AIProviderError";
+  }
+}
+
 export type OrchestratorEvent =
-  | { type: "started"; mode: "mock" }
+  | { type: "started"; mode: "live" | "mock" }
   | { type: "speaking"; agent: AgentName }
   | { type: "log"; log: MeetingLogItem }
   | { type: "final"; finalReport: string }

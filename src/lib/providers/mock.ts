@@ -17,6 +17,28 @@ export class MockProvider implements AIProvider {
       return `모든 의견을 종합했습니다. 우선순위는 핵심 가설 검증, 최소 실행안 제작, 측정 지표 확인 순서로 정리하겠습니다. 담당자와 완료 기준을 명확히 한 뒤 실행에 착수하면 됩니다.`;
     }
 
+    if (task.phase === "report") {
+      return `# 최종 실행 보고서
+
+## 목표
+${task.order}
+
+## 실행 단계
+1. 핵심 가설과 성공 기준을 확정합니다.
+2. 최소 실행안을 제작하고 사용자 반응을 측정합니다.
+3. 결과에 따라 유지, 개선 또는 중단을 결정합니다.
+
+## 역할 분담
+- PM: 범위, 일정, 완료 기준 관리
+- 마케팅: 타깃과 메시지 검증
+- 디자인: 핵심 사용자 흐름 설계
+- 개발: MVP 구현과 운영 안정성 확보
+- 분석: 지표, 비용, 위험 추적
+
+## 다음 액션
+첫 검증 작업의 담당자와 완료일을 확정합니다.`;
+    }
+
     const previous = task.transcript.at(-1)?.agent;
     const context = previous ? `${previous}의 의견을 바탕으로 ` : "";
     const messages: Record<AgentTask["agent"], string> = {

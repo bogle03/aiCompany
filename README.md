@@ -10,12 +10,18 @@ copy .env.example .env.local
 npm run dev
 ```
 
-`.env.local`의 `OPENAI_API_KEY`에 실제 API 키를 입력한 뒤 `http://localhost:3000`에서 확인하세요.
+`.env.local`에 사용할 Provider의 API 키를 입력한 뒤 `http://localhost:3000`에서 확인하세요.
+각 AI 직원의 설정에서 OpenAI 또는 Gemini와 모델을 따로 선택할 수 있습니다.
 
 ## 환경 변수
 
 ```env
 OPENAI_API_KEY=sk-...
-# 선택 사항 (기본값: gpt-4.1-mini)
-OPENAI_MODEL=gpt-4.1-mini
+GEMINI_API_KEY=...
+
+# API 키 없이 화면 흐름만 확인할 때 사용
+# AI_MEETING_MODE=mock
 ```
+
+선택된 Provider의 키만 필요합니다. 예를 들어 모든 직원을 OpenAI로 설정했다면
+`GEMINI_API_KEY`는 생략할 수 있습니다.

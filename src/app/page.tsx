@@ -8,11 +8,13 @@ import OfficeScene from "@/components/OfficeScene";
 import {
   AGENT_NAMES,
   DEFAULT_AGENT_SETTINGS,
+  isHighCostModel,
   type AgentName,
   type AgentSettingsMap,
   type MeetingLogItem,
   type MeetingResponse,
 } from "@/lib/agents";
+import { MAX_ORDER_CHARS, MAX_PROVIDER_CALLS } from "@/lib/meeting-limits";
 import type { OrchestratorEvent } from "@/lib/providers/types";
 
 const SUGGESTIONS = [
@@ -40,6 +42,18 @@ export default function Home() {
 
     if (!trimmedOrder) {
       setError("회의를 시작할 오더를 입력해 주세요.");
+      return;
+    }
+
+    const highCostAgents = AGENT_NAMES.filter((name) =>
+      isHighCostModel(agentSettings[name].provider, agentSettings[name].model),
+    );
+    if (
+      highCostAgents.length > 0 &&
+      !window.confirm(
+        `${highCostAgents.join(", ")}에 고비용 모델이 선택되어 있습니다. 이 회의는 최대 ${MAX_PROVIDER_CALLS}회의 AI 호출을 사용합니다. 계속할까요?`,
+      )
+    ) {
       return;
     }
 
@@ -153,7 +167,7 @@ export default function Home() {
                     onKeyDown={(event) => {
                       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") submitOrder();
                     }}
-                    maxLength={4000}
+                    maxLength={MAX_ORDER_CHARS}
                     rows={3}
                     disabled={isLoading}
                     placeholder="예: 20대 직장인을 위한 AI 일정 관리 앱의 4주 출시 전략을 만들어줘."
@@ -162,7 +176,7 @@ export default function Home() {
                   <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] px-2 pb-1 pt-3">
                     <div className="flex items-center gap-2 text-xs text-slate-600">
                       <Bot size={14} />
-                      <span>{order.length.toLocaleString()} / 4,000</span>
+                      <span>{order.length.toLocaleString()} / {MAX_ORDER_CHARS.toLocaleString()}</span>
                       <span className="hidden sm:inline">· Ctrl/⌘ + Enter</span>
                     </div>
                     <button
